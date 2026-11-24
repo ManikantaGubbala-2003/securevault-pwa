@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#080e18">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="SecureVault">
+  <meta name="description" content="A private, locally encrypted password vault.">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <link rel="stylesheet" href="styles.css">
+  <title>SecureVault</title>
+</head>
+<body>
+  <main id="app">
+    <section id="lockScreen" class="screen lock-screen">
+      <div class="brand-mark"><span>◆</span></div>
+      <p class="eyebrow">YOUR PRIVATE SPACE</p>
+      <h1>SecureVault</h1>
+      <p class="muted intro">Your passwords stay encrypted on this device.</p>
+      <div class="lock-panel">
+        <div class="face-icon">◉</div>
+        <h2 id="lockTitle">Set up your vault</h2>
+        <p id="lockDescription" class="muted">Use Face ID through your iPhone's passkey authentication to protect your vault.</p>
+        <button id="setupButton" class="primary">Set up with Face ID</button>
+        <button id="unlockButton" class="primary hidden">Unlock with Face ID</button>
+        <p id="lockMessage" class="message" role="status"></p>
+      </div>
+      <p class="footnote">Local-first · Encrypted · No account required</p>
+    </section>
+
+    <section id="vaultScreen" class="screen hidden">
+      <header class="topbar">
+        <div class="brand"><span class="mini-mark">◆</span><div><b>SecureVault</b><small>YOUR PRIVATE VAULT</small></div></div>
+        <button id="lockButton" class="icon-button" aria-label="Lock vault">⌑</button>
+      </header>
+
+      <section class="welcome">
+        <div><p class="eyebrow">WELCOME BACK</p><h1>Your digital<br>keys, secured.</h1></div>
+        <div class="shield">◇</div>
+      </section>
+
+      <button id="openGenerator" class="generator-card">
+        <span class="key-icon">⚿</span>
+        <span class="generator-copy"><b>Password generator</b><small>Create a strong new password</small></span>
+        <span class="arrow">↗</span>
+      </button>
+
+      <div class="section-heading"><h2>Saved accounts</h2><span id="accountCount">0 SAVED</span></div>
+      <label class="search-wrap"><span>⌕</span><input id="searchInput" type="search" placeholder="Search accounts" autocomplete="off"></label>
+      <div id="accountList" class="account-list"></div>
+      <div id="emptyState" class="empty-state"><div>▣</div><b>Your vault is empty</b><p>Add your email or LMS credentials to get started.</p></div>
+      <button id="addAccount" class="fab" aria-label="Add account">＋</button>
+    </section>
+  </main>
+
+  <dialog id="accountDialog">
+    <form id="accountForm" method="dialog">
+      <div class="dialog-head"><div><p class="eyebrow">YOUR CREDENTIALS</p><h2 id="accountDialogTitle">Add account</h2></div><button type="button" class="close-button" data-close="accountDialog">×</button></div>
+      <input type="hidden" id="accountId">
+      <label>Account name<input id="accountTitle" required maxlength="60" placeholder="e.g. Gmail or College LMS"></label>
+      <label>Email or user ID<input id="accountUsername" required maxlength="160" autocomplete="off" placeholder="Enter email or user ID"></label>
+      <label>Password<div class="password-field"><input id="accountPassword" required maxlength="256" autocomplete="new-password" type="password" placeholder="Enter password"><button type="button" id="toggleAccountPassword">Show</button></div></label>
+      <label>Notes <span class="optional">(optional)</span><textarea id="accountNotes" rows="2" maxlength="500" placeholder="Website or reminder"></textarea></label>
+      <div class="dialog-actions"><button type="button" class="secondary" data-close="accountDialog">Cancel</button><button class="primary" type="submit">Save securely</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="generatorDialog">
+    <div class="dialog-head"><div><p class="eyebrow">RANDOM & SECURE</p><h2>Password generator</h2></div><button type="button" class="close-button" data-close="generatorDialog">×</button></div>
+    <div class="generated-output"><code id="generatedPassword"></code><button id="copyGenerated" class="copy-button">Copy</button></div>
+    <div class="strength-row"><span>Strength</span><b>Strong</b></div>
+    <label class="range-label">Length <b id="lengthValue">20</b></label>
+    <input id="lengthRange" type="range" min="12" max="48" value="20">
+    <div class="toggles">
+      <label><input id="useUpper" type="checkbox" checked> Uppercase letters</label>
+      <label><input id="useLower" type="checkbox" checked> Lowercase letters</label>
+      <label><input id="useNumbers" type="checkbox" checked> Numbers</label>
+      <label><input id="useSymbols" type="checkbox" checked> Symbols</label>
+    </div>
+    <div class="dialog-actions"><button id="refreshPassword" class="primary wide">↻ &nbsp; Refresh password</button></div>
+    <p class="hint">Refresh generates a new password here. It does not change your password on Gmail, LMS, or another website. Update it on that service, then save the new password in your account entry.</p>
+  </dialog>
+
+  <dialog id="detailDialog">
+    <div class="dialog-head"><div><p class="eyebrow">SAVED ACCOUNT</p><h2 id="detailTitle">Account</h2></div><button type="button" class="close-button" data-close="detailDialog">×</button></div>
+    <div class="detail-field"><span>EMAIL / USER ID</span><div><code id="detailUsername"></code><button data-copy="username" class="tiny-copy">Copy</button></div></div>
+    <div class="detail-field"><span>PASSWORD</span><div><code id="detailPassword">••••••••••••</code><button id="revealPassword" class="tiny-copy">Show</button><button data-copy="password" class="tiny-copy">Copy</button></div></div>
+    <div id="detailNotes" class="detail-notes hidden"></div>
+    <div class="dialog-actions split"><button id="deleteAccount" class="danger">Delete</button><button id="editAccount" class="primary">Edit account</button></div>
+  </dialog>
+
+  <div id="toast" role="status" aria-live="polite"></div>
+  <script src="app.js"></script>
+</body>
+</html>
